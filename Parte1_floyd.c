@@ -5,11 +5,18 @@
 //TODO parametrizar (pantalla ?))
 int nodos = 16;
 char filename[] = "Datos distancias.csv";
+char **nodeNames;
 
 int main(){
+    nodeNames = malloc(nodos);
+
     printf("\nCreando la matriz");
     unsigned int **adjacencyMatrix = getMatrix();
-    floyd(adjacencyMatrix);
+
+    for(int i = 0; i < 16;i++){
+        printf("\nthe nodes %s,",nodeNames[i]);
+    }
+    //floyd(adjacencyMatrix);
 }
 
 void floyd (unsigned int **matriz)
@@ -68,28 +75,29 @@ int getMatrix()
     }
 
     unsigned int **adjacencyMatrix = malloc(nodos * sizeof(unsigned int *));
-	for(int i = 0; i < nodos; i++)
-		adjacencyMatrix[i] = malloc(nodos * sizeof(unsigned int));
-
-    //TODO argument
+	for(int i = 0; i < nodos; i++){
+        adjacencyMatrix[i] = malloc(nodos * sizeof(unsigned int));
+	}
     //read line by line
     const size_t line_size = 300;
     char* line = malloc(line_size);
     int lineCount = 0;
     while (fgets(line, line_size, fh) != NULL)  {
-        //skip header
-        if(lineCount > 0){
-            char * token = strtok(line, ";");
-            // loop through the string to extract all other tokens
-            //token count to skip column of node name
-            int tokenCount = 0;
-            while( token != NULL) {
-                if(tokenCount > 0){
-                    adjacencyMatrix[lineCount-1][tokenCount-1] = atoi(token);
-                }
-                token = strtok(NULL, ";");
-                tokenCount++;
+        char * token = strtok(line, ";");
+        // loop through the string to extract all other tokens
+        //token count to skip column of node name
+        int tokenCount = 0;
+        while(token != NULL) {
+            if(lineCount == 0){
+                printf("%s\n",token);
+                nodeNames[tokenCount] = token;
+                //strcpy(thelist[tokenCount],token);
             }
+            if((lineCount > 0) && tokenCount > 0){
+                adjacencyMatrix[lineCount-1][tokenCount-1] = atoi(token);
+            }
+            token = strtok(NULL, ";");
+            tokenCount++;
         }
         lineCount++;
     }
