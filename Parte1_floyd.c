@@ -1,6 +1,10 @@
-#define nodos 16
 #include <stdlib.h>
 #include <stdio.h>
+
+
+//TODO parametrizar (pantalla ?))
+int nodos = 16;
+char filename[] = "Datos distancias.csv";
 
 int main(){
     printf("\nCreando la matriz");
@@ -54,8 +58,6 @@ void show_matriz_distancias(int matriz_distancias[nodos][nodos])
 
 int getMatrix()
 {
-    //open and get the file handle
-    char filename[] = "Datos distancias.csv";
     FILE* fh;
     fopen_s(&fh, filename, "r");
 
