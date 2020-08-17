@@ -2,7 +2,11 @@
 #define nodos 16
 #include <stdlib.h>
 #include <stdio.h>
+#include <stddef.h>
+#include <string.h>
+#include <time.h>
 
+ int matriz_distancias[nodos][nodos];
 int main(){
 
 printf("\nCreando la matriz");
@@ -42,13 +46,14 @@ printf("\nCreando la matriz");
 
     };
     floyd(matriz);
+    SegundaParte();
+
 }
 
 void floyd (int matriz[nodos][nodos])
 {
-
     //Creamos una nueva matriz para colocar los nuevos valores de distancias o usamos la misma que creamos????
-    int matriz_distancias[nodos][nodos], k, i, j;
+   int k, i, j;
 
     //Inicializamos la matriz resultante que va a ser la de distancias
     for (i = 0; i < nodos; i++)
@@ -93,3 +98,184 @@ void show_matriz_distancias(int matriz_distancias[nodos][nodos])
         printf("\n");
     }
 }
+
+
+
+//**********************PARTE 2 AUTOMATAS*********************************************
+
+
+ char *ciudades[16]= {"Mar del Plata", "Balcarce", "Tandil", "Azul", "Tapalque", "Saladillo", "25 de mayo", "Chivilcoy", "Chacabuco", "Dolores", "Castelli", "Gral Belgrano", "San miguel del monte", "Lobos", "Roque Perez", "Ayacucho"};
+ char ciudadesDisponibles[] = "Mar del Plata, Balcarce, Tandil, Azul, Tapalque, Saladillo, 25 de mayo, Chivilcoy, Chacabuco, Dolores, Castelli, Gral Belgrano, San miguel del monte, Lobos, Roque Perez, Ayacucho";
+ char origen[20];
+ char GPS[20];
+ char destino[20];
+ char des[20];
+ int indiceOrigen, indiceDestino;
+ int velocidades[]={90,120,160,180};
+ float velocidadMedia=0;
+ float tiempo;
+ float distanciaPorRecorrer;
+ int EstadoActual, EstadoAnterior;
+
+ void SegundaParte()
+{
+    MostrarMenu();
+}
+
+
+void Actualizar_GPS(){
+    EstadoActual= 1;
+    printf("\n Estado Actual: %i", EstadoActual);
+    printf("\n Las ciudades disponibles son: %s\n",ciudadesDisponibles );
+    printf("\nIngrese la ciudad actual: ");
+	scanf("%s", origen);
+    sprintf( GPS, "%s", origen );
+   // printf("\n %s", GPS);
+  //  GPS = origen;
+    Seleccionar_Destino();
+}
+
+
+void Seleccionar_Destino(){
+    EstadoAnterior = EstadoActual;
+    EstadoActual = 2;
+    printf("\n Estado Actual: %i", EstadoActual);
+
+    if(EstadoAnterior != 1){
+       printf("\n Debe Actualizar GPS");
+        Actualizar_GPS();
+        return;
+    }
+    printf("\nIngrese la ciudad de destino: ");
+	scanf("%s", des);
+	sprintf( destino, "%s", des );
+    //printf("\n %s", destino);
+    //destino = destino;
+    Imprimir_Recorrido();
+}
+
+void Imprimir_Recorrido(){
+     EstadoAnterior = EstadoActual;
+    EstadoActual = 3;
+    printf("\n Estado Actual: %i", EstadoActual);
+
+    if(EstadoAnterior != 2){
+         printf("\n Debe Seleccionar Destino");
+        Seleccionar_Destino();
+        return;
+    }
+
+    int j,i;
+     for (j = 0; j < 16; j++)
+    {
+         if (strcmp(ciudades[j], GPS) == 0) {
+            indiceOrigen = j;
+           // printf("\n %i", indiceOrigen);
+         }
+         else if(strcmp(ciudades[j], destino) == 0){
+            indiceDestino = j;
+           // printf("\n %i", indiceDestino);
+
+         };
+    };
+
+     printf("\n El recorrido sera el siguiente:");
+
+     for (i=indiceOrigen; i <= indiceDestino; i++)
+        {
+            printf("\n %s", ciudades[i]);
+        }
+    Iniciar_Recorrido();
+
+}
+
+
+ Iniciar_Recorrido(){
+    EstadoAnterior = EstadoActual;
+    EstadoActual = 4;
+    printf("\n Estado Actual: %i", EstadoActual);
+
+    if(EstadoAnterior != 3){
+         printf("\n Debe Mostrar Recorrido");
+        Imprimir_Recorrido();
+        return;
+    }
+     int i;
+    distanciaPorRecorrer = ((float)matriz_distancias[indiceOrigen][indiceDestino]) * 1.0;
+printf("\n distancia por reccorrer %2f tiempo inicial: 0",distanciaPorRecorrer);
+      Sleep(20000);
+
+    for (i = 0; i < 4; i++){
+        velocidadMedia += velocidades[i];
+        velocidadMedia = velocidadMedia/ (i+1);
+        tiempo = distanciaPorRecorrer / velocidadMedia;
+        printf("\n Ha recorrido: %2f km", velocidadMedia);
+        printf("Tiempo Restante: %6f hs ", tiempo);
+        distanciaPorRecorrer -= velocidadMedia;
+        if(distanciaPorRecorrer < 0){
+                Finalizar_Camino();
+           break;
+        }
+        if(i == 3){
+            velocidadMedia = 0;
+            i=0;
+        }
+        Sleep(20000);
+    }
+
+ }
+
+ void Finalizar_Camino(){
+    EstadoAnterior = EstadoActual;
+    EstadoActual = 5;
+    printf("\n Estado Actual: %i", EstadoActual);
+
+    if(EstadoAnterior != 4){
+         printf("\n Debe Iniciar el Camino");
+        Iniciar_Recorrido();
+        return;
+    }
+            printf("\n Haz llegado a destino %s!!", destino );
+ }
+
+
+ MostrarMenu(){
+     int opcionMenu;
+   printf("\n Seleccione una opcion del menu");
+   printf("\n 1:  Actualizar GPS., 2: Seleccionar Destino., 3: Mostrar Recorrido., 4: Iniciar Camino., 5: Finalizar Camino.");
+   scanf("%i", &opcionMenu);
+
+   if(opcionMenu == 1){
+        printf("if 1");
+        Actualizar_GPS();
+   }
+   else if(opcionMenu == 2){
+            Seleccionar_Destino();
+   }
+   else if(opcionMenu == 3){
+        Imprimir_Recorrido();
+   }
+   else if(opcionMenu == 4){
+            Iniciar_Recorrido();
+     }
+   else if(opcionMenu == 5){
+            Finalizar_Camino();
+   }
+ }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
