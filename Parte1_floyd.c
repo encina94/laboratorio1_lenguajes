@@ -7,16 +7,34 @@
 int nodos = 16;
 char filename[] = "Datos distancias.csv";
 char **nodeNames;
+char currentLocation[] = "Azul";
 unsigned int **adjacencyMatrix;
 
 int main(){
     printf("\nCreando la matriz");
     adjacencyMatrix = getMatrix();
 
-    for(int i = 0; i < 16;i++){
-        printf("\nthe nodes %s,",nodeNames[i]);
+    //for(int i = 0; i < 16;i++){
+      //  printf("\nthe nodes %s,",nodeNames[i]);
+    //}
+    getBestWay(currentLocation,"Azul");
+    //floyd(adjacencyMatrix);
+}
+
+void getBestWay(char *origin[], char *destiny[]){
+    int isValidOrigin = 0;
+    int isValidDestiny = 0;
+    for(int i = 0; i < nodos; i++){
+        if(strcmp(nodeNames,origin)){
+            isValidOrigin = 1;
+        }
+        if(strcmp(nodeNames,destiny)){
+            isValidDestiny = 1;
+        }
     }
-    floyd(adjacencyMatrix);
+    if(isValidOrigin && isValidDestiny){
+        printf("is valid");
+    }
 }
 
 void floyd (unsigned int **matriz)
