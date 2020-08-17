@@ -1,22 +1,22 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 
 //TODO parametrizar (pantalla ?))
 int nodos = 16;
 char filename[] = "Datos distancias.csv";
 char **nodeNames;
+unsigned int **adjacencyMatrix;
 
 int main(){
-    nodeNames = malloc(nodos);
-
     printf("\nCreando la matriz");
-    unsigned int **adjacencyMatrix = getMatrix();
+    adjacencyMatrix = getMatrix();
 
     for(int i = 0; i < 16;i++){
         printf("\nthe nodes %s,",nodeNames[i]);
     }
-    //floyd(adjacencyMatrix);
+    floyd(adjacencyMatrix);
 }
 
 void floyd (unsigned int **matriz)
@@ -83,15 +83,19 @@ int getMatrix()
     char* line = malloc(line_size);
     int lineCount = 0;
     while (fgets(line, line_size, fh) != NULL)  {
+        if(lineCount == 0){
+            nodeNames = malloc(nodos);
+            for(int i = 0; i < nodos; i++){
+                nodeNames[i] = malloc(sizeof(line));
+            }
+        }
         char * token = strtok(line, ";");
         // loop through the string to extract all other tokens
         //token count to skip column of node name
         int tokenCount = 0;
         while(token != NULL) {
             if(lineCount == 0){
-                printf("%s\n",token);
-                nodeNames[tokenCount] = token;
-                //strcpy(thelist[tokenCount],token);
+                strcpy(nodeNames[tokenCount],token);
             }
             if((lineCount > 0) && tokenCount > 0){
                 adjacencyMatrix[lineCount-1][tokenCount-1] = atoi(token);
