@@ -7,18 +7,19 @@
 int nodos = 16;
 char filename[] = "Datos distancias.csv";
 char **nodeNames;
-char currentLocation[] = "Azul";
+char currentLocation[] = "? Chivilcoy";
+char destination[] = "Castelli";
 unsigned int **adjacencyMatrix;
+char **bestWay;
 
 int main(){
-    printf("\nCreando la matriz");
+    printf("\nCreando la matriz\n");
     adjacencyMatrix = getMatrix();
 
     //for(int i = 0; i < 16;i++){
       //  printf("\nthe nodes %s,",nodeNames[i]);
     //}
     getBestWay(currentLocation,"Azul");
-    //floyd(adjacencyMatrix);
 }
 
 void getBestWay(char *origin[], char *destiny[]){
@@ -33,7 +34,7 @@ void getBestWay(char *origin[], char *destiny[]){
         }
     }
     if(isValidOrigin && isValidDestiny){
-        printf("is valid");
+        floyd(adjacencyMatrix);
     }
 }
 
@@ -41,6 +42,7 @@ void floyd (unsigned int **matriz)
 {
     //Creamos una nueva matriz para colocar los nuevos valores de distancias o usamos la misma que creamos????
     int matriz_distancias[nodos][nodos], k, i, j;
+    char **bestWay = malloc(nodos * sizeof(int));//debería ser a lo sumo 4 nodos pero por las dudas
 
     //Inicializamos la matriz resultante que va a ser la de distancias
     for (i = 0; i < nodos; i++)
@@ -50,19 +52,32 @@ void floyd (unsigned int **matriz)
     //Seleccionamos cada nodo intermedio (k)
     for (k = 0; k < nodos; k++)
     {
+        printf("Nodo K es: %s\n",nodeNames[k]);
         //Seleccionamos los nodos de inicio
         for (i = 0; i < nodos; i++)
         {
+            printf("Nodo I es: %s \n",nodeNames[i]);
             //Seleccionamos los nodos de destino
             for (j = 0; j < nodos; j++)
             {
+                printf("Nodo J es: %s \n",nodeNames[j]);
                 //Verificamos si la distancia es menor a la existente
                 if (matriz_distancias[i][k] + matriz_distancias[k][j] < matriz_distancias[i][j])
                     //Se actualiza la distancia
                     matriz_distancias[i][j] = matriz_distancias[i][k] + matriz_distancias[k][j];
+                    if(strcmp(currentLocation,nodeNames[k]) == 0 && strcmp(destination,nodeNames[j]) == 0){
+                        bestWay[0] = nodeNames[k];
+                        bestWay[1] = nodeNames[i];
+                        bestWay[2] = nodeNames[j];
+                        printf("######################HELLO!! %s y %s\n",currentLocation,destination);
+                    }
             }
         }
     }
+    for (int i = 0; i < 2; i++)
+            {
+                printf("El mejor camino %s\n",bestWay[i]);
+            }
     //Se coloca directamente la distancia de la posicion en la matriz [8][0] que corresponde a Chacabuco como origen y mar del plata como destino
     printf("\nLa distancia minima entre las ciudades de Chacabuco y Mar del Plata es de: %d kms. \n", matriz_distancias[8][0]);
     show_matriz_distancias(matriz_distancias);
