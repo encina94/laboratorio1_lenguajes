@@ -7,6 +7,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <time.h>
+#include <windows.h>
 
 //TODO parametrizar (pantalla ?))
 //int nodos = 16;
