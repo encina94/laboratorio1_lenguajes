@@ -24,6 +24,7 @@ int main(){
     printf("\nCreando la matriz");
     unsigned int **adjacencyMatrix = getMatrix();
     floyd(adjacencyMatrix);
+    getBestWay();
     SegundaParte();
 }
 
