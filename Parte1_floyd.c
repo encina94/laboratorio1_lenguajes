@@ -13,12 +13,42 @@
 //int nodos = 16;
 char filename[] = "Datos distancias.csv";
 int matriz_distancias[nodos][nodos];
+unsigned int **adjacencyMatrix;
+char nodeNames[nodos][nodos][100];
+char routeMatrix[nodos][nodos][100];
+char currentLocation[] = "Saladillo";
+char destination[] = "Chacabuco";
+
 
 int main(){
     printf("\nCreando la matriz");
     unsigned int **adjacencyMatrix = getMatrix();
     floyd(adjacencyMatrix);
     SegundaParte();
+}
+
+void getBestWay(){
+    int isValidOrigin = 0;
+    int isValidDestiny = 0;
+    int originIndex = 0;
+    int destinyIndex = 0;
+
+    for(int i = 0; i < nodos; i++){
+        if(strcmp(nodeNames[0][i],currentLocation) == 0){
+            isValidOrigin = 1;
+            originIndex = i;
+        }
+        if(strcmp(nodeNames[0][i],destination) == 0){
+            isValidDestiny = 1;
+            destinyIndex = i;
+        }
+    }
+
+    if(isValidOrigin && isValidDestiny){
+        printf("\n El mejor camino desde %s a %s es:  %s -> %s -> %s ",
+               nodeNames[0][originIndex],nodeNames[0][destinyIndex],nodeNames[0][originIndex],
+               routeMatrix[originIndex][destinyIndex],nodeNames[0][destinyIndex]);
+    }
 }
 
 void floyd (unsigned int **matriz)
@@ -28,8 +58,10 @@ void floyd (unsigned int **matriz)
 
     //Inicializamos la matriz resultante que va a ser la de distancias
     for (i = 0; i < nodos; i++)
-        for (j = 0; j < nodos; j++)
+        for (j = 0; j < nodos; j++){
             matriz_distancias[i][j] = matriz[i][j];
+            strcpy(routeMatrix[i][j],nodeNames[i]);
+        }
 
     //Seleccionamos cada nodo intermedio (k)
     for (k = 0; k < nodos; k++)
@@ -41,14 +73,18 @@ void floyd (unsigned int **matriz)
             for (j = 0; j < nodos; j++)
             {
                 //Verificamos si la distancia es menor a la existente
-                if (matriz_distancias[i][k] + matriz_distancias[k][j] < matriz_distancias[i][j])
+                if ((matriz_distancias[i][k] + matriz_distancias[k][j]) < matriz_distancias[i][j]){
                     //Se actualiza la distancia
                     matriz_distancias[i][j] = matriz_distancias[i][k] + matriz_distancias[k][j];
+                    strcpy(routeMatrix[i][j],nodeNames[i][k]);
+                }
             }
         }
     }
+
     //Se coloca directamente la distancia de la posicion en la matriz [8][0] que corresponde a Chacabuco como origen y mar del plata como destino
     printf("\nLa distancia minima entre las ciudades de Chacabuco y Mar del Plata es de: %d kms. \n", matriz_distancias[8][0]);
+
     show_matriz_distancias(matriz_distancias);
 }
 
@@ -77,31 +113,38 @@ int getMatrix()
     }
 
     unsigned int **adjacencyMatrix = malloc(nodos * sizeof(unsigned int *));
-	for(int i = 0; i < nodos; i++)
-		adjacencyMatrix[i] = malloc(nodos * sizeof(unsigned int));
-
-    //TODO argument
+	for(int i = 0; i < nodos; i++){
+        adjacencyMatrix[i] = malloc(nodos * sizeof(unsigned int));
+	}
     //read line by line
     const size_t line_size = 300;
     char* line = malloc(line_size);
     int lineCount = 0;
     while (fgets(line, line_size, fh) != NULL)  {
-        //skip header
-        if(lineCount > 0){
-            char * token = strtok(line, ";");
-            // loop through the string to extract all other tokens
-            //token count to skip column of node name
-            int tokenCount = 0;
-            while( token != NULL) {
-                if(tokenCount > 0){
-                    adjacencyMatrix[lineCount-1][tokenCount-1] = atoi(token);
+        char * token = strtok(line, ";");
+        // loop through the string to extract all other tokens
+        //token count to skip column of node name
+        int tokenCount = 0;
+        while(token != NULL) {
+            if(lineCount == 0){
+                for(int i = 0; i < nodos; i++){
+                    strcpy(nodeNames[i][(tokenCount+1)],token);
+                    strcpy(routeMatrix[i][(tokenCount+1)],token);
                 }
-                token = strtok(NULL, ";");
-                tokenCount++;
+                for(int i = 0; i < nodos; i++){
+                    strcpy(nodeNames[i][0],nodeNames[0][i]);
+                }
+                //strcpy(nodeNames[tokenCount],token);
             }
+            if((lineCount > 0) && tokenCount > 0){
+                adjacencyMatrix[lineCount-1][tokenCount-1] = atoi(token);
+            }
+            token = strtok(NULL, ";");
+            tokenCount++;
         }
         lineCount++;
     }
+
     free(line);    // dont forget to free heap memory
     return adjacencyMatrix;
 }
