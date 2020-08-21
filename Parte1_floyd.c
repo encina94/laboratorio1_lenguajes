@@ -16,39 +16,49 @@ int matriz_distancias[nodos][nodos];
 unsigned int **adjacencyMatrix;
 char nodeNames[nodos][nodos][100];
 char routeMatrix[nodos][nodos][100];
-char currentLocation[] = "Saladillo";
-char destination[] = "Chacabuco";
-
+char currentLocation[];
+char destination[];
+//******************
+ char ciudadesDisponibles[] = "Mar del Plata, Balcarce, Tandil, Azul, Tapalque, Saladillo, 25 de mayo, Chivilcoy, Chacabuco, Dolores, Castelli, Gral Belgrano, San miguel del monte, Lobos, Roque Perez, Ayacucho";
+ char origen[20];
+ char GPS[20];
+ char destino[20];
+ char des[20];
+ int indiceOrigen, indiceDestino;
+ int velocidades[]={90,120,160,180};
+ float velocidadMedia=0;
+ float tiempo;
+ float distanciaPorRecorrer;
+ int EstadoActual, EstadoAnterior;
 
 int main(){
     printf("\nCreando la matriz");
     unsigned int **adjacencyMatrix = getMatrix();
     floyd(adjacencyMatrix);
-    getBestWay();
+   // getBestWay();
     SegundaParte();
 }
 
-void getBestWay(){
+void getBestWay(origen, destino){
     int isValidOrigin = 0;
     int isValidDestiny = 0;
-    int originIndex = 0;
-    int destinyIndex = 0;
 
     for(int i = 0; i < nodos; i++){
-        if(strcmp(nodeNames[0][i],currentLocation) == 0){
+        if(strcmp(nodeNames[0][i],origen) == 0){
             isValidOrigin = 1;
-            originIndex = i;
+            indiceOrigen = i;
         }
-        if(strcmp(nodeNames[0][i],destination) == 0){
+        if(strcmp(nodeNames[0][i],destino) == 0){
             isValidDestiny = 1;
-            destinyIndex = i;
+            indiceDestino = i;
         }
     }
 
     if(isValidOrigin && isValidDestiny){
         printf("\n El mejor camino desde %s a %s es:  %s -> %s -> %s ",
-               nodeNames[0][originIndex],nodeNames[0][destinyIndex],nodeNames[0][originIndex],
-               routeMatrix[originIndex][destinyIndex],nodeNames[0][destinyIndex]);
+               nodeNames[0][indiceOrigen],nodeNames[0][indiceDestino],nodeNames[0][indiceOrigen],
+               routeMatrix[indiceOrigen][indiceDestino],nodeNames[0][indiceDestino]);
+    }else{ printf("\n nada");
     }
 }
 
@@ -158,20 +168,6 @@ int getMatrix()
 
 //**********************PARTE 2 AUTOMATAS*********************************************
 
-
- char *ciudades[16]= {"Mar del Plata", "Balcarce", "Tandil", "Azul", "Tapalque", "Saladillo", "25 de mayo", "Chivilcoy", "Chacabuco", "Dolores", "Castelli", "Gral Belgrano", "San miguel del monte", "Lobos", "Roque Perez", "Ayacucho"};
- char ciudadesDisponibles[] = "Mar del Plata, Balcarce, Tandil, Azul, Tapalque, Saladillo, 25 de mayo, Chivilcoy, Chacabuco, Dolores, Castelli, Gral Belgrano, San miguel del monte, Lobos, Roque Perez, Ayacucho";
- char origen[20];
- char GPS[20];
- char destino[20];
- char des[20];
- int indiceOrigen, indiceDestino;
- int velocidades[]={90,120,160,180};
- float velocidadMedia=0;
- float tiempo;
- float distanciaPorRecorrer;
- int EstadoActual, EstadoAnterior;
-
  void SegundaParte()
 {
     MostrarMenu();
@@ -185,6 +181,7 @@ void Actualizar_GPS(){
     printf("\nIngrese la ciudad actual: ");
 	scanf("%s", origen);
     sprintf( GPS, "%s", origen );
+
    // printf("\n %s", GPS);
   //  GPS = origen;
     Seleccionar_Destino();
@@ -204,6 +201,7 @@ void Seleccionar_Destino(){
     printf("\nIngrese la ciudad de destino: ");
 	scanf("%s", des);
 	sprintf( destino, "%s", des );
+	//destination[] = destino;
     //printf("\n %s", destino);
     //destino = destino;
     Imprimir_Recorrido();
@@ -219,28 +217,30 @@ void Imprimir_Recorrido(){
         Seleccionar_Destino();
         return;
     }
+    getBestWay(GPS, destino);
+    Iniciar_Recorrido();
 
-    int j,i;
-     for (j = 0; j < 16; j++)
-    {
-         if (strcmp(ciudades[j], GPS) == 0) {
-            indiceOrigen = j;
+   // int j,i;
+   //  for (j = 0; j < 16; j++)
+   // {
+   //      if (strcmp(ciudades[j], GPS) == 0) {
+   //         indiceOrigen = j;
            // printf("\n %i", indiceOrigen);
-         }
-         else if(strcmp(ciudades[j], destino) == 0){
-            indiceDestino = j;
+     //    }
+       //  else if(strcmp(ciudades[j], destino) == 0){
+         //   indiceDestino = j;
            // printf("\n %i", indiceDestino);
 
-         };
-    };
+         //};
+    //};
 
-     printf("\n El recorrido sera el siguiente:");
+   //  printf("\n El recorrido sera el siguiente:");
 
-     for (i=indiceOrigen; i <= indiceDestino; i++)
-        {
-            printf("\n %s", ciudades[i]);
-        }
-    Iniciar_Recorrido();
+     //for (i=indiceOrigen; i <= indiceDestino; i++)
+       // {
+         //   printf("\n %s", ciudades[i]);
+       // }
+   // Iniciar_Recorrido();
 
 }
 
@@ -264,8 +264,8 @@ printf("\n distancia por reccorrer %2f km, tiempo inicial: 0",distanciaPorRecorr
         velocidadMedia += velocidades[i];
         velocidadMedia = velocidadMedia/ (i+1);
         tiempo = distanciaPorRecorrer / velocidadMedia;
-        printf("\n Ha recorrido: %2f km", velocidadMedia);
-        printf("Tiempo Restante: %6f hs ", tiempo);
+        printf("\n Ha recorrido: %2f km, ", velocidadMedia);
+        printf(" Tiempo Restante: %6f hs ", tiempo);
         distanciaPorRecorrer -= velocidadMedia;
         if(distanciaPorRecorrer < 0){
                 Finalizar_Camino();
