@@ -8,6 +8,7 @@
 #include <string.h>
 #include <time.h>
 #include <windows.h>
+#include <stdbool.h>
 
 //TODO parametrizar (pantalla ?))
 //int nodos = 16;
@@ -20,10 +21,9 @@ char currentLocation[];
 char destination[];
 //******************
  char ciudadesDisponibles[] = "Mar del Plata, Balcarce, Tandil, Azul, Tapalque, Saladillo, 25 de mayo, Chivilcoy, Chacabuco, Dolores, Castelli, Gral Belgrano, San miguel del monte, Lobos, Roque Perez, Ayacucho";
- char origen[20];
- char GPS[20];
- char destino[20];
- char des[20];
+ char origen[256];
+ char destino[256];
+ char des[256];
  int indiceOrigen, indiceDestino;
  int velocidades[]={90,120,160,180};
  float velocidadMedia=0;
@@ -38,6 +38,26 @@ int main(){
    // getBestWay();
     SegundaParte();
 }
+
+bool IsValidOrigin(ciudadOrigen){
+    for(int i = 0; i < nodos; i++){
+        if(strcmp(nodeNames[0][i],ciudadOrigen) == 0){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool IsValidDestiny(ciudadDestino){
+
+    for(int i = 0; i < nodos; i++){
+        if(strcmp(nodeNames[0][i],ciudadDestino) == 0){
+            return true;
+        }
+    }
+    return false;
+}
+
 
 void getBestWay(origen, destino){
     int isValidOrigin = 0;
@@ -66,7 +86,6 @@ void floyd (unsigned int **matriz)
 {
     //Creamos una nueva matriz para colocar los nuevos valores de distancias o usamos la misma que creamos????
     int k, i, j;
-
     //Inicializamos la matriz resultante que va a ser la de distancias
     for (i = 0; i < nodos; i++)
         for (j = 0; j < nodos; j++){
@@ -178,13 +197,20 @@ void Actualizar_GPS(){
     EstadoActual= 1;
     printf("\n Estado Actual: %i", EstadoActual);
     printf("\n Las ciudades disponibles son: %s\n",ciudadesDisponibles );
-    printf("\nIngrese la ciudad actual: ");
-	scanf("%s", origen);
-    sprintf( GPS, "%s", origen );
 
-   // printf("\n %s", GPS);
+    printf("Ingrese la ciudad actual: ");
+    fgets(origen,256,stdin);
+    scanf(" %[^\n]s",origen);
+   // printf("%s",origen);
+
+    if(IsValidOrigin(origen)){
+      Seleccionar_Destino();
+    }else{
+        printf("La ciudad ingresada no se encuentra dentro de la matriz, por favor intente nuevamente: ");
+        Actualizar_GPS();
+    }
+
   //  GPS = origen;
-    Seleccionar_Destino();
 }
 
 
@@ -199,12 +225,19 @@ void Seleccionar_Destino(){
         return;
     }
     printf("\nIngrese la ciudad de destino: ");
-	scanf("%s", des);
-	sprintf( destino, "%s", des );
-	//destination[] = destino;
-    //printf("\n %s", destino);
-    //destino = destino;
+    fgets(destino,256,stdin);
+    scanf(" %[^\n]s",destino);
+   // printf("%s",destino);
+
+ if(IsValidDestiny(destino)){
     Imprimir_Recorrido();
+    }
+    else{
+        printf("La ciudad ingresada no se encuentra dentro de la matriz, por favor intente nuevamente: ");
+        EstadoActual = 1;
+        Seleccionar_Destino();
+    }
+
 }
 
 void Imprimir_Recorrido(){
@@ -217,30 +250,8 @@ void Imprimir_Recorrido(){
         Seleccionar_Destino();
         return;
     }
-    getBestWay(GPS, destino);
+    getBestWay(origen, destino);
     Iniciar_Recorrido();
-
-   // int j,i;
-   //  for (j = 0; j < 16; j++)
-   // {
-   //      if (strcmp(ciudades[j], GPS) == 0) {
-   //         indiceOrigen = j;
-           // printf("\n %i", indiceOrigen);
-     //    }
-       //  else if(strcmp(ciudades[j], destino) == 0){
-         //   indiceDestino = j;
-           // printf("\n %i", indiceDestino);
-
-         //};
-    //};
-
-   //  printf("\n El recorrido sera el siguiente:");
-
-     //for (i=indiceOrigen; i <= indiceDestino; i++)
-       // {
-         //   printf("\n %s", ciudades[i]);
-       // }
-   // Iniciar_Recorrido();
 
 }
 
@@ -256,16 +267,25 @@ void Imprimir_Recorrido(){
         return;
     }
      int i;
+     int dist_faltante= matriz_distancias[indiceOrigen][indiceDestino];
+     int dist_a_mostrar = matriz_distancias[indiceOrigen][indiceDestino];
     distanciaPorRecorrer = ((float)matriz_distancias[indiceOrigen][indiceDestino]) * 1.0;
-printf("\n distancia por reccorrer %2f km, tiempo inicial: 0",distanciaPorRecorrer);
+printf("\n distancia por reccorrer %i km, tiempo inicial: 0. Iniciando Viaje...",dist_a_mostrar);
       Sleep(20000);
 
     for (i = 0; i < 4; i++){
         velocidadMedia += velocidades[i];
         velocidadMedia = velocidadMedia/ (i+1);
+        if(velocidadMedia > distanciaPorRecorrer){
+             printf("\n Ha recorrido: %i km, 0km por recorrer. ", dist_faltante);
+                             Finalizar_Camino();
+            break;
+        }
+        dist_a_mostrar = velocidadMedia;
+        dist_faltante  -= velocidadMedia;
         tiempo = distanciaPorRecorrer / velocidadMedia;
-        printf("\n Ha recorrido: %2f km, ", velocidadMedia);
-        printf(" Tiempo Restante: %6f hs ", tiempo);
+        printf("\n Ha recorrido: %i km, ", dist_a_mostrar);
+        printf(" Tiempo Restante: %2f hs. Continuando viaje, %i km por recorrer... ", tiempo, dist_faltante);
         distanciaPorRecorrer -= velocidadMedia;
         if(distanciaPorRecorrer < 0){
                 Finalizar_Camino();
@@ -296,12 +316,10 @@ printf("\n distancia por reccorrer %2f km, tiempo inicial: 0",distanciaPorRecorr
 
  MostrarMenu(){
      int opcionMenu;
-   printf("\n Seleccione una opcion del menu");
-   printf("\n 1:  Actualizar GPS., 2: Seleccionar Destino., 3: Mostrar Recorrido., 4: Iniciar Camino., 5: Finalizar Camino.");
+   printf("\n 1:  Actualizar GPS. \n 2: Seleccionar Destino. \n 3: Mostrar Recorrido. \n 4: Iniciar Camino.\n 5: Finalizar Camino. \n Seleccione una opcion del menu: ");
    scanf("%i", &opcionMenu);
 
    if(opcionMenu == 1){
-        printf("if 1");
         Actualizar_GPS();
    }
    else if(opcionMenu == 2){
