@@ -316,7 +316,7 @@ printf("\n distancia por reccorrer %i km, tiempo inicial: 0. Iniciando Viaje..."
 
  MostrarMenu(){
      int opcionMenu;
-   printf("\n 1:  Actualizar GPS. \n 2: Seleccionar Destino. \n 3: Mostrar Recorrido. \n 4: Iniciar Camino.\n 5: Finalizar Camino. \n Seleccione una opcion del menu: ");
+   printf("\n MENU \n 1:  Actualizar GPS. \n 2: Seleccionar Destino. \n 3: Mostrar Recorrido. \n 4: Iniciar Camino.\n 5: Finalizar Camino. \n Seleccione una opcion del menu: ");
    scanf("%i", &opcionMenu);
 
    if(opcionMenu == 1){
