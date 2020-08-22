@@ -20,7 +20,6 @@ char routeMatrix[nodos][nodos][100];
 char currentLocation[];
 char destination[];
 //******************
- char ciudadesDisponibles[] = "Mar del Plata, Balcarce, Tandil, Azul, Tapalque, Saladillo, 25 de mayo, Chivilcoy, Chacabuco, Dolores, Castelli, Gral Belgrano, San miguel del monte, Lobos, Roque Perez, Ayacucho";
  char origen[256];
  char destino[256];
  char des[256];
@@ -35,7 +34,7 @@ int main(){
     printf("\nCreando la matriz");
     unsigned int **adjacencyMatrix = getMatrix();
     floyd(adjacencyMatrix);
-   // getBestWay();
+    getBestWay("Azul","Chacabuco");
     SegundaParte();
 }
 
@@ -58,28 +57,37 @@ bool IsValidDestiny(ciudadDestino){
     return false;
 }
 
+/**
+nodeNames[0]  es un arreglo (listado) de los 16 nombres de los nodos
+indiceOrigen  es la posicion del nodo origen en el listado de arriba
+indiceDestino es la posicion del nodo destino en el listado de arriba
 
-void getBestWay(origen, destino){
-    int isValidOrigin = 0;
-    int isValidDestiny = 0;
-
+*/
+void getBestWay(char origen[], char destino[]){
     for(int i = 0; i < nodos; i++){
         if(strcmp(nodeNames[0][i],origen) == 0){
-            isValidOrigin = 1;
             indiceOrigen = i;
         }
         if(strcmp(nodeNames[0][i],destino) == 0){
-            isValidDestiny = 1;
             indiceDestino = i;
         }
     }
 
-    if(isValidOrigin && isValidDestiny){
-        printf("\n El mejor camino desde %s a %s es:  %s -> %s -> %s ",
-               nodeNames[0][indiceOrigen],nodeNames[0][indiceDestino],nodeNames[0][indiceOrigen],
-               routeMatrix[indiceOrigen][indiceDestino],nodeNames[0][indiceDestino]);
-    }else{ printf("\n nada");
+    printf("\n El mejor camino desde %s a %s es: ",origen,destino);
+    do{
+        //imprimimos de la matriz final el nombre que esté en la posicion "como llegar a destino" (fila del nodo origen, columna nodo destino)
+        printf("-> %s ", routeMatrix[indiceOrigen][indiceDestino]);
+        for(int i = 0; i < nodos; i++){
+            //busco el índice para ese nuevo nodo por el que tiene que pasar para saber que fila buscar
+            if(strcmp(nodeNames[0][i],routeMatrix[indiceOrigen][indiceDestino]) != 0){
+                indiceOrigen = nodeNames[0][i];
+            }
+        }
     }
+    //Si desde el nuevo nodo (nueva fila) no llega al destino, volver a hacer lo mismo
+    while(strcmp(routeMatrix[indiceOrigen][indiceDestino],destino) != 0);
+    printf("-> %s",nodeNames[0][indiceDestino]);
+    printf("\n");
 }
 
 void floyd (unsigned int **matriz)
@@ -158,11 +166,8 @@ int getMatrix()
         while(token != NULL) {
             if(lineCount == 0){
                 for(int i = 0; i < nodos; i++){
-                    strcpy(nodeNames[i][(tokenCount+1)],token);
-                    strcpy(routeMatrix[i][(tokenCount+1)],token);
-                }
-                for(int i = 0; i < nodos; i++){
-                    strcpy(nodeNames[i][0],nodeNames[0][i]);
+                    strcpy(nodeNames[i][(tokenCount)],token);
+                    strcpy(routeMatrix[i][(tokenCount)],token);
                 }
                 //strcpy(nodeNames[tokenCount],token);
             }
@@ -196,8 +201,11 @@ int getMatrix()
 void Actualizar_GPS(){
     EstadoActual= 1;
     printf("\n Estado Actual: %i", EstadoActual);
-    printf("\n Las ciudades disponibles son: %s\n",ciudadesDisponibles );
-
+    printf("\n Las ciudades disponibles son:");
+    for(int i = 0; i < nodos ; i++){
+        printf(" %s ",nodeNames[0][i]);
+    }
+    printf("\n");
     printf("Ingrese la ciudad actual: ");
     fgets(origen,256,stdin);
     scanf(" %[^\n]s",origen);
