@@ -17,8 +17,10 @@ int matriz_distancias[nodos][nodos];
 unsigned int **adjacencyMatrix;
 char nodeNames[nodos][nodos][100];
 char routeMatrix[nodos][nodos][100];
+char wayArray[nodos][100];
 char currentLocation[];
 char destination[];
+
 //******************
  char origen[256];
  char destino[256];
@@ -34,7 +36,6 @@ int main(){
     printf("\nCreando la matriz");
     unsigned int **adjacencyMatrix = getMatrix();
     floyd(adjacencyMatrix);
-    getBestWay("Azul","Chacabuco");
     SegundaParte();
 }
 
@@ -57,13 +58,44 @@ bool IsValidDestiny(ciudadDestino){
     return false;
 }
 
+void getBestWay(char origin[], char destiny[]){
+    printf("El mejor camino desde %s a %s es: \n",origin,destiny);
+    printf("%s ",origin);
+    calculateBestWay(origin,destiny);
+}
+
 /**
 nodeNames[0]  es un arreglo (listado) de los 16 nombres de los nodos
 indiceOrigen  es la posicion del nodo origen en el listado de arriba
 indiceDestino es la posicion del nodo destino en el listado de arriba
 
 */
-void getBestWay(char origen[], char destino[]){
+void calculateBestWay(char origin[], char destiny[]){
+    int nodeAlreadyVisited = 0;
+    for(int i = 0; i < nodos; i++){
+        if(strcmp(wayArray[i],origin) == 0){
+            nodeAlreadyVisited = 1;
+        }
+        if(strcmp(nodeNames[0][i],origin) == 0){
+            indiceOrigen = i;
+        }
+        if(strcmp(nodeNames[0][i],destiny) == 0){
+            indiceDestino = i;
+        }
+    }
+    char *adjNode = routeMatrix[indiceOrigen][indiceDestino];
+    if((strcmp(adjNode,destiny) == 0) || (nodeAlreadyVisited == 1)){
+        printf("-> %s",destiny);
+        printf("\n");
+    }else{
+        //imprimimos de la matriz final el nombre que esté en la posicion "como llegar a destino" (fila del nodo origen, columna nodo destino)
+        printf("-> %s ", adjNode);
+        strcpy(wayArray[indiceOrigen],adjNode);
+        calculateBestWay(adjNode,destiny);
+    }
+}
+
+void getBestWayOld(char origen[], char destino[]){
     for(int i = 0; i < nodos; i++){
         if(strcmp(nodeNames[0][i],origen) == 0){
             indiceOrigen = i;
@@ -73,7 +105,7 @@ void getBestWay(char origen[], char destino[]){
         }
     }
 
-    printf("\n El mejor camino desde %s a %s es: ",origen,destino);
+
     do{
         //imprimimos de la matriz final el nombre que esté en la posicion "como llegar a destino" (fila del nodo origen, columna nodo destino)
         printf("-> %s ", routeMatrix[indiceOrigen][indiceDestino]);
