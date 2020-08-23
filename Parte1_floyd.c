@@ -10,8 +10,6 @@
 #include <windows.h>
 #include <stdbool.h>
 
-//TODO parametrizar (pantalla ?))
-//int nodos = 16;
 char nombreDelArchivo[] = "Datos distancias.csv";
 int matrizFinalDistancias[nodos][nodos];
 unsigned int **matrizAdyacencias;
@@ -30,9 +28,27 @@ char caminos[nodos][100];
  int EstadoActual, EstadoAnterior;
 
 int main(){
-    printf("\nCreando la matriz");
+    printf("\nCreando la matriz\n");
     matrizAdyacencias = getMatrix();
+
+    for(int i = 0; i < nodos; i++){
+        for(int j = 0; j < nodos; j++){
+            printf(" %7d ",matrizAdyacencias[i][j]);
+        }
+        printf("\n");
+    }
+
+    printf("\n");
+
     floyd(matrizAdyacencias);
+
+    for(int i = 0; i < nodos; i++){
+        for(int j = 0; j < nodos; j++){
+            printf(" %s ",matrizFinalRutas[i][j]);
+        }
+        printf("\n");
+    }
+
     SegundaParte();
 }
 
@@ -90,7 +106,7 @@ void floyd (unsigned int **matriz)
     for (i = 0; i < nodos; i++)
         for (j = 0; j < nodos; j++){
             matrizFinalDistancias[i][j] = matriz[i][j];
-            strcpy(matrizFinalRutas[i][j],nodeNames[i]);
+            strcpy(matrizFinalRutas[i][j],nodeNames[i][j]);
         }
 
     //Seleccionamos cada nodo intermedio (k)
@@ -111,6 +127,8 @@ void floyd (unsigned int **matriz)
             }
         }
     }
+
+    printf("\n");
 
     //Se coloca directamente la distancia de la posicion en la matriz [8][0] que corresponde a Chacabuco como origen y mar del plata como destino
     printf("\nLa distancia minima entre las ciudades de Chacabuco y Mar del Plata es de: %d kms. \n", matrizFinalDistancias[8][0]);
@@ -151,6 +169,10 @@ int getMatrix()
     char* line = malloc(line_size);
     int lineCount = 0;
     while (fgets(line, line_size, fh) != NULL)  {
+
+        size_t length = strlen(line);
+        if (line[length - 1] == '\n')
+            line[--length] = '\0';
         char * token = strtok(line, ";");
         // loop through the string to extract all other tokens
         //token count to skip column of node name
@@ -171,7 +193,6 @@ int getMatrix()
         }
         lineCount++;
     }
-
     free(line);    // dont forget to free heap memory
     return matrizAdyacencias;
 }
