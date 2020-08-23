@@ -12,19 +12,16 @@
 
 //TODO parametrizar (pantalla ?))
 //int nodos = 16;
-char filename[] = "Datos distancias.csv";
-int matriz_distancias[nodos][nodos];
-unsigned int **adjacencyMatrix;
+char nombreDelArchivo[] = "Datos distancias.csv";
+int matrizFinalDistancias[nodos][nodos];
+unsigned int **matrizAdyacencias;
 char nodeNames[nodos][nodos][100];
-char routeMatrix[nodos][nodos][100];
-char wayArray[nodos][100];
-char currentLocation[];
-char destination[];
+char matrizFinalRutas[nodos][nodos][100];
+char caminos[nodos][100];
 
 //******************
  char origen[256];
  char destino[256];
- char des[256];
  int indiceOrigen, indiceDestino;
  int velocidades[]={90,120,160,180};
  float velocidadMedia=0;
@@ -34,34 +31,24 @@ char destination[];
 
 int main(){
     printf("\nCreando la matriz");
-    unsigned int **adjacencyMatrix = getMatrix();
-    floyd(adjacencyMatrix);
+    matrizAdyacencias = getMatrix();
+    floyd(matrizAdyacencias);
     SegundaParte();
 }
 
-bool IsValidOrigin(ciudadOrigen){
+bool ciudadValida(ciudad){
     for(int i = 0; i < nodos; i++){
-        if(strcmp(nodeNames[0][i],ciudadOrigen) == 0){
+        if(strcmp(nodeNames[0][i],ciudad) == 0){
             return true;
         }
     }
     return false;
 }
 
-bool IsValidDestiny(ciudadDestino){
-
-    for(int i = 0; i < nodos; i++){
-        if(strcmp(nodeNames[0][i],ciudadDestino) == 0){
-            return true;
-        }
-    }
-    return false;
-}
-
-void getBestWay(char origin[], char destiny[]){
-    printf("El mejor camino desde %s a %s es: \n",origin,destiny);
-    printf("%s ",origin);
-    calculateBestWay(origin,destiny);
+void getMejorCamino(char origen[], char destino[]){
+    printf("El mejor camino desde %s a %s es: \n",origen,destino);
+    printf("%s ",origen);
+    imprimirMejorCamino(origen,destino);
 }
 
 /**
@@ -70,33 +57,12 @@ indiceOrigen  es la posicion del nodo origen en el listado de arriba
 indiceDestino es la posicion del nodo destino en el listado de arriba
 
 */
-void calculateBestWay(char origin[], char destiny[]){
-    int nodeAlreadyVisited = 0;
+void imprimirMejorCamino(char origen[], char destino[]){
+    int nodoVisitado = 0;
     for(int i = 0; i < nodos; i++){
-        if(strcmp(wayArray[i],origin) == 0){
-            nodeAlreadyVisited = 1;
+        if(strcmp(caminos[i],origen) == 0){
+            nodoVisitado = 1;
         }
-        if(strcmp(nodeNames[0][i],origin) == 0){
-            indiceOrigen = i;
-        }
-        if(strcmp(nodeNames[0][i],destiny) == 0){
-            indiceDestino = i;
-        }
-    }
-    char *adjNode = routeMatrix[indiceOrigen][indiceDestino];
-    if((strcmp(adjNode,destiny) == 0) || (nodeAlreadyVisited == 1)){
-        printf("-> %s",destiny);
-        printf("\n");
-    }else{
-        //imprimimos de la matriz final el nombre que esté en la posicion "como llegar a destino" (fila del nodo origen, columna nodo destino)
-        printf("-> %s ", adjNode);
-        strcpy(wayArray[indiceOrigen],adjNode);
-        calculateBestWay(adjNode,destiny);
-    }
-}
-
-void getBestWayOld(char origen[], char destino[]){
-    for(int i = 0; i < nodos; i++){
         if(strcmp(nodeNames[0][i],origen) == 0){
             indiceOrigen = i;
         }
@@ -104,22 +70,16 @@ void getBestWayOld(char origen[], char destino[]){
             indiceDestino = i;
         }
     }
-
-
-    do{
+    char *nodoIntermedio = matrizFinalRutas[indiceOrigen][indiceDestino];
+    if((strcmp(nodoIntermedio,destino) == 0) || (nodoVisitado == 1)){
+        printf("-> %s",destino);
+        printf("\n");
+    }else{
         //imprimimos de la matriz final el nombre que esté en la posicion "como llegar a destino" (fila del nodo origen, columna nodo destino)
-        printf("-> %s ", routeMatrix[indiceOrigen][indiceDestino]);
-        for(int i = 0; i < nodos; i++){
-            //busco el índice para ese nuevo nodo por el que tiene que pasar para saber que fila buscar
-            if(strcmp(nodeNames[0][i],routeMatrix[indiceOrigen][indiceDestino]) != 0){
-                indiceOrigen = nodeNames[0][i];
-            }
-        }
+        printf("-> %s ", nodoIntermedio);
+        strcpy(caminos[indiceOrigen],nodoIntermedio);
+        imprimirMejorCamino(nodoIntermedio,destino);
     }
-    //Si desde el nuevo nodo (nueva fila) no llega al destino, volver a hacer lo mismo
-    while(strcmp(routeMatrix[indiceOrigen][indiceDestino],destino) != 0);
-    printf("-> %s",nodeNames[0][indiceDestino]);
-    printf("\n");
 }
 
 void floyd (unsigned int **matriz)
@@ -129,8 +89,8 @@ void floyd (unsigned int **matriz)
     //Inicializamos la matriz resultante que va a ser la de distancias
     for (i = 0; i < nodos; i++)
         for (j = 0; j < nodos; j++){
-            matriz_distancias[i][j] = matriz[i][j];
-            strcpy(routeMatrix[i][j],nodeNames[i]);
+            matrizFinalDistancias[i][j] = matriz[i][j];
+            strcpy(matrizFinalRutas[i][j],nodeNames[i]);
         }
 
     //Seleccionamos cada nodo intermedio (k)
@@ -143,28 +103,28 @@ void floyd (unsigned int **matriz)
             for (j = 0; j < nodos; j++)
             {
                 //Verificamos si la distancia es menor a la existente
-                if ((matriz_distancias[i][k] + matriz_distancias[k][j]) < matriz_distancias[i][j]){
+                if ((matrizFinalDistancias[i][k] + matrizFinalDistancias[k][j]) < matrizFinalDistancias[i][j]){
                     //Se actualiza la distancia
-                    matriz_distancias[i][j] = matriz_distancias[i][k] + matriz_distancias[k][j];
-                    strcpy(routeMatrix[i][j],nodeNames[i][k]);
+                    matrizFinalDistancias[i][j] = matrizFinalDistancias[i][k] + matrizFinalDistancias[k][j];
+                    strcpy(matrizFinalRutas[i][j],nodeNames[i][k]);
                 }
             }
         }
     }
 
     //Se coloca directamente la distancia de la posicion en la matriz [8][0] que corresponde a Chacabuco como origen y mar del plata como destino
-    printf("\nLa distancia minima entre las ciudades de Chacabuco y Mar del Plata es de: %d kms. \n", matriz_distancias[8][0]);
+    printf("\nLa distancia minima entre las ciudades de Chacabuco y Mar del Plata es de: %d kms. \n", matrizFinalDistancias[8][0]);
 
-    show_matriz_distancias(matriz_distancias);
+    show_matrizFinalDistancias(matrizFinalDistancias);
 }
 
-void show_matriz_distancias(int matriz_distancias[nodos][nodos])
+void show_matrizFinalDistancias(int matrizFinalDistancias[nodos][nodos])
 {
     for (int i = 0; i < nodos; i++)
     {
         for (int j = 0; j < nodos; j++)
         {
-            printf (" %7d", matriz_distancias[i][j]);
+            printf (" %7d", matrizFinalDistancias[i][j]);
         }
         printf("\n");
     }
@@ -174,17 +134,17 @@ void show_matriz_distancias(int matriz_distancias[nodos][nodos])
 int getMatrix()
 {
     FILE* fh;
-    fopen_s(&fh, filename, "r");
+    fopen_s(&fh, nombreDelArchivo, "r");
 
     //check if file exists
     if (fh == NULL){
-        printf("file does not exists %s", filename);
+        printf("file does not exists %s", nombreDelArchivo);
         return 0;
     }
 
-    unsigned int **adjacencyMatrix = malloc(nodos * sizeof(unsigned int *));
+    unsigned int **matrizAdyacencias = malloc(nodos * sizeof(unsigned int *));
 	for(int i = 0; i < nodos; i++){
-        adjacencyMatrix[i] = malloc(nodos * sizeof(unsigned int));
+        matrizAdyacencias[i] = malloc(nodos * sizeof(unsigned int));
 	}
     //read line by line
     const size_t line_size = 300;
@@ -199,12 +159,12 @@ int getMatrix()
             if(lineCount == 0){
                 for(int i = 0; i < nodos; i++){
                     strcpy(nodeNames[i][(tokenCount)],token);
-                    strcpy(routeMatrix[i][(tokenCount)],token);
+                    strcpy(matrizFinalRutas[i][(tokenCount)],token);
                 }
                 //strcpy(nodeNames[tokenCount],token);
             }
             if((lineCount > 0) && tokenCount > 0){
-                adjacencyMatrix[lineCount-1][tokenCount-1] = atoi(token);
+                matrizAdyacencias[lineCount-1][tokenCount-1] = atoi(token);
             }
             token = strtok(NULL, ";");
             tokenCount++;
@@ -213,7 +173,7 @@ int getMatrix()
     }
 
     free(line);    // dont forget to free heap memory
-    return adjacencyMatrix;
+    return matrizAdyacencias;
 }
 
 
@@ -243,7 +203,7 @@ void Actualizar_GPS(){
     scanf(" %[^\n]s",origen);
    // printf("%s",origen);
 
-    if(IsValidOrigin(origen)){
+    if(ciudadValida(origen)){
       Seleccionar_Destino();
     }else{
         printf("La ciudad ingresada no se encuentra dentro de la matriz, por favor intente nuevamente: ");
@@ -269,7 +229,7 @@ void Seleccionar_Destino(){
     scanf(" %[^\n]s",destino);
    // printf("%s",destino);
 
- if(IsValidDestiny(destino)){
+ if(ciudadValida(destino)){
     Imprimir_Recorrido();
     }
     else{
@@ -290,7 +250,7 @@ void Imprimir_Recorrido(){
         Seleccionar_Destino();
         return;
     }
-    getBestWay(origen, destino);
+    getMejorCamino(origen, destino);
     Iniciar_Recorrido();
 
 }
@@ -307,9 +267,9 @@ void Imprimir_Recorrido(){
         return;
     }
      int i;
-     int dist_faltante= matriz_distancias[indiceOrigen][indiceDestino];
-     int dist_a_mostrar = matriz_distancias[indiceOrigen][indiceDestino];
-    distanciaPorRecorrer = ((float)matriz_distancias[indiceOrigen][indiceDestino]) * 1.0;
+     int dist_faltante= matrizFinalDistancias[indiceOrigen][indiceDestino];
+     int dist_a_mostrar = matrizFinalDistancias[indiceOrigen][indiceDestino];
+    distanciaPorRecorrer = ((float)matrizFinalDistancias[indiceOrigen][indiceDestino]) * 1.0;
 printf("\n distancia por reccorrer %i km, tiempo inicial: 0. Iniciando Viaje...",dist_a_mostrar);
       Sleep(20000);
 
