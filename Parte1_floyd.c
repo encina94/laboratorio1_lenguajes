@@ -87,12 +87,15 @@ void imprimirMejorCamino(char origen[], char destino[]){
         }
     }
     char *nodoIntermedio = matrizFinalRutas[indiceOrigen][indiceDestino];
-    if((strcmp(nodoIntermedio,destino) == 0) || (nodoVisitado == 1)){
-        printf("-> %s",destino);
+    //imprimimos de la matriz final el nombre que esté en la posicion "como llegar a destino" (fila del nodo origen, columna nodo destino)
+    printf("-> %s ", nodoIntermedio);
+    int llegoADestino = strcmp(nodoIntermedio,destino);
+    if(llegoADestino == 0 || nodoVisitado == 1){
+        if(llegoADestino != 0){
+            printf("-> %s",destino);
+        }
         printf("\n");
     }else{
-        //imprimimos de la matriz final el nombre que esté en la posicion "como llegar a destino" (fila del nodo origen, columna nodo destino)
-        printf("-> %s ", nodoIntermedio);
         strcpy(caminos[indiceOrigen],nodoIntermedio);
         imprimirMejorCamino(nodoIntermedio,destino);
     }
@@ -122,7 +125,9 @@ void floyd (unsigned int **matriz)
                 if ((matrizFinalDistancias[i][k] + matrizFinalDistancias[k][j]) < matrizFinalDistancias[i][j]){
                     //Se actualiza la distancia
                     matrizFinalDistancias[i][j] = matrizFinalDistancias[i][k] + matrizFinalDistancias[k][j];
-                    strcpy(matrizFinalRutas[i][j],nodeNames[i][k]);
+                    if(i != j){
+                        strcpy(matrizFinalRutas[i][j],nodeNames[i][k]);
+                    }
                 }
             }
         }
