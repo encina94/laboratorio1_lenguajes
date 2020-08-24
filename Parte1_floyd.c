@@ -28,26 +28,10 @@ char caminos[nodos][100];
  int EstadoActual, EstadoAnterior;
 
 int main(){
-    printf("\nCreando la matriz\n");
+    printf("\n##########TRABAJO FINAL: Lenguajes formales y automatas ##########\n");
     matrizAdyacencias = getMatrix();
 
-    for(int i = 0; i < nodos; i++){
-        for(int j = 0; j < nodos; j++){
-            printf(" %7d ",matrizAdyacencias[i][j]);
-        }
-        printf("\n");
-    }
-
-    printf("\n");
-
     floyd(matrizAdyacencias);
-
-    for(int i = 0; i < nodos; i++){
-        for(int j = 0; j < nodos; j++){
-            printf(" %s ",matrizFinalRutas[i][j]);
-        }
-        printf("\n");
-    }
 
     SegundaParte();
 }
