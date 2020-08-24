@@ -51,6 +51,17 @@ void getMejorCamino(char origen[], char destino[]){
     imprimirMejorCamino(origen,destino);
 }
 
+getIndices(origen,destino){
+  for(int i = 0; i < nodos; i++){
+        if(strcmp(nodeNames[0][i],origen) == 0){
+            indiceOrigen = i;
+        }
+        if(strcmp(nodeNames[0][i],destino) == 0){
+            indiceDestino = i;
+        }
+    }
+}
+
 /**
 nodeNames[0]  es un arreglo (listado) de los 16 nombres de los nodos
 indiceOrigen  es la posicion del nodo origen en el listado de arriba
@@ -59,18 +70,21 @@ indiceDestino es la posicion del nodo destino en el listado de arriba
 */
 void imprimirMejorCamino(char origen[], char destino[]){
     int nodoVisitado = 0;
+    int indiceOrig;
+    int indiceDest;
+
     for(int i = 0; i < nodos; i++){
         if(strcmp(caminos[i],origen) == 0){
             nodoVisitado = 1;
         }
         if(strcmp(nodeNames[0][i],origen) == 0){
-            indiceOrigen = i;
+            indiceOrig = i;
         }
         if(strcmp(nodeNames[0][i],destino) == 0){
-            indiceDestino = i;
+            indiceDest = i;
         }
     }
-    char *nodoIntermedio = matrizFinalRutas[indiceOrigen][indiceDestino];
+    char *nodoIntermedio = matrizFinalRutas[indiceOrig][indiceDest];
     //imprimimos de la matriz final el nombre que esté en la posicion "como llegar a destino" (fila del nodo origen, columna nodo destino)
     printf("-> %s ", nodoIntermedio);
     int llegoADestino = strcmp(nodoIntermedio,destino);
@@ -80,7 +94,7 @@ void imprimirMejorCamino(char origen[], char destino[]){
         }
         printf("\n");
     }else{
-        strcpy(caminos[indiceOrigen],nodoIntermedio);
+        strcpy(caminos[indiceOrig],nodoIntermedio);
         imprimirMejorCamino(nodoIntermedio,destino);
     }
 }
@@ -277,6 +291,7 @@ void Imprimir_Recorrido(){
         return;
     }
      int i;
+     getIndices(origen, destino);
      int dist_faltante= matrizFinalDistancias[indiceOrigen][indiceDestino];
      int dist_a_mostrar = matrizFinalDistancias[indiceOrigen][indiceDestino];
     distanciaPorRecorrer = ((float)matrizFinalDistancias[indiceOrigen][indiceDestino]) * 1.0;
