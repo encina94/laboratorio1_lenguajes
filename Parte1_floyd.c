@@ -21,10 +21,13 @@ char caminos[nodos][100];
  char origen[256];
  char destino[256];
  int indiceOrigen, indiceDestino;
+
  int velocidades[]={90,120,160,180};
+ int sumaVel;
  float velocidadMedia=0;
  float tiempo;
  float distanciaPorRecorrer;
+
  int EstadoActual, EstadoAnterior;
 
 int main(){
@@ -290,34 +293,36 @@ void Imprimir_Recorrido(){
         Imprimir_Recorrido();
         return;
     }
-     int i;
-     getIndices(origen, destino);
-     int dist_faltante= matrizFinalDistancias[indiceOrigen][indiceDestino];
-     int dist_a_mostrar = matrizFinalDistancias[indiceOrigen][indiceDestino];
+    int i;
+    getIndices(origen, destino);
+    int dist_faltante= matrizFinalDistancias[indiceOrigen][indiceDestino];
+    int dist_a_mostrar = matrizFinalDistancias[indiceOrigen][indiceDestino];
     distanciaPorRecorrer = ((float)matrizFinalDistancias[indiceOrigen][indiceDestino]) * 1.0;
-printf("\n distancia por reccorrer %i km, tiempo inicial: 0. Iniciando Viaje...",dist_a_mostrar);
-      Sleep(20000);
-
-    for (i = 0; i < 4; i++){
-        velocidadMedia += velocidades[i];
-        velocidadMedia = velocidadMedia/ (i+1);
+    sumaVel += velocidades[i];
+    velocidadMedia = sumaVel/ (i+1);
+    tiempo = distanciaPorRecorrer / velocidadMedia;
+    printf("\n distancia por reccorrer %i km, tiempo estimado: %2f. Iniciando Viaje...",dist_a_mostrar, tiempo);
+    Sleep(20000);
+    for (i = 1; i < 4; i++){
         if(velocidadMedia > distanciaPorRecorrer){
              printf("\n Ha recorrido: %i km, 0km por recorrer. ", dist_faltante);
                              Finalizar_Camino();
-            break;
+            return;
         }
+        distanciaPorRecorrer -= velocidadMedia;
         dist_a_mostrar = velocidadMedia;
         dist_faltante  -= velocidadMedia;
         tiempo = distanciaPorRecorrer / velocidadMedia;
         printf("\n Ha recorrido: %i km, ", dist_a_mostrar);
         printf(" Tiempo Restante: %2f hs. Continuando viaje, %i km por recorrer... ", tiempo, dist_faltante);
-        distanciaPorRecorrer -= velocidadMedia;
+        sumaVel += velocidades[i];
+        velocidadMedia = sumaVel/ (i+1);
         if(distanciaPorRecorrer < 0){
                 Finalizar_Camino();
-           break;
+           return;
         }
         if(i == 3){
-            velocidadMedia = 0;
+            sumaVel = 0;
             i=0;
         }
         Sleep(20000);
