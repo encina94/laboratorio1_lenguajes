@@ -345,23 +345,26 @@ void Imprimir_Recorrido(){
 
 
  MostrarMenu(){
-     int opcionMenu;
+    char opcionMenu[250];
    printf("\n MENU \n 1:  Actualizar GPS. \n 2: Seleccionar Destino. \n 3: Mostrar Recorrido. \n 4: Iniciar Camino.\n 5: Finalizar Camino. \n Seleccione una opcion del menu: ");
-   scanf("%i", &opcionMenu);
-
-   if(opcionMenu == 1){
-        Actualizar_GPS();
-   }
-   else if(opcionMenu == 2){
-            Seleccionar_Destino();
-   }
-   else if(opcionMenu == 3){
-        Imprimir_Recorrido();
-   }
-   else if(opcionMenu == 4){
-            Iniciar_Recorrido();
-     }
-   else if(opcionMenu == 5){
-            Finalizar_Camino();
-   }
+   scanf("%s", &opcionMenu);
+    if(opcionMenu[0] == '1'){
+            Actualizar_GPS();
+       }
+    else if(opcionMenu[0] == '2'){
+                Seleccionar_Destino();
+       }
+    else if(opcionMenu[0] == '3'){
+            Imprimir_Recorrido();
+       }
+    else if(opcionMenu[0] == '4'){
+                Iniciar_Recorrido();
+         }
+    else if(opcionMenu[0] == '5'){
+                Finalizar_Camino();
+       }
+    else{
+         printf("Menu no valido, Vuelva a intentarlo.");
+        MostrarMenu();
+       }
  }
